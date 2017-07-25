@@ -1,0 +1,16 @@
+"Phrases"
+{
+	"Warning Shot"
+	{
+		"#format"	"{1:N},{2:N}"
+		"en"	"{1} has given {2} a warning shot."
+		"sv"	"{1} har gett {2} ett varningsskott."
+	}
+	
+	"Warning Shot Hint"
+	{
+		"#format"	"{1:N}"
+		"en"	"{1} gave you a warningshot!"
+		"sv"	"{1} gav dig ett varningsskott!"
+	}
+}
