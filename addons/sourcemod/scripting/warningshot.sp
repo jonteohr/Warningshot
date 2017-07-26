@@ -1,4 +1,5 @@
 #include <sourcemod>
+#include <sdktools>
 #include <sdkhooks>
 #include <colorvariables>
 #include <cstrike>
@@ -7,7 +8,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define VERSION "1.0"
+#define VERSION "1.1"
 
 ConVar cvDamage;
 ConVar cvColored;
@@ -64,7 +65,7 @@ public Action OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float
 	// Inflictor = The attacking entity
 	
 	if(IsClientInGame(inflictor) && GetClientTeam(inflictor) == CS_TEAM_CT && GetClientTeam(victim) == CS_TEAM_T && IsPlayerAlive(victim) && IsPlayerAlive(inflictor)) {
-		if(GetClientButtons(inflictor) == IN_USE) {
+		if(GetClientButtons(inflictor) & IN_USE) {
 			GiveClientWarningShot(victim, inflictor);
 			return Plugin_Handled;
 		}
