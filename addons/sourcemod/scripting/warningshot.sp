@@ -86,7 +86,7 @@ public int Native_GiveClientWarningShot(Handle plugin, int numParams) {
 	int inflictor = GetNativeCell(2);
 	int damage = (GetClientHealth(victim) - cvDamage.IntValue);
 	if(IsPlayerAlive(victim)) {
-		if(cvColored.IntValue != 0) {
+		if(cvColored.IntValue > 0) {
 			SetEntityRenderColor(victim, cvRed.IntValue, cvGreen.IntValue, cvBlue.IntValue);
 			CreateTimer(cvColored.FloatValue, ColorTimer, victim);
 		}
