@@ -48,7 +48,7 @@ public void OnPluginStart() {
 	cvBlue = CreateConVar("sm_warning_color_B", "0", "The BLUE value of the color the warned T should get.", FCVAR_NOTIFY, true, 0.0, true, 255.0);
 	
 	for(int i = 1; i <= MaxClients; i++) {
-		if(!IsValidClient(i))
+		if(!IsClientInGame(i))
 			continue;
 		SDKHook(i, SDKHook_OnTakeDamageAlive, OnTakeDamageAlive);
 	}
@@ -57,19 +57,21 @@ public void OnPluginStart() {
 }
 
 public void OnClientPutInServer(int client) {
-	if(IsValidClient(client))
-		SDKHook(client, SDKHook_OnTakeDamageAlive, OnTakeDamageAlive);
+	SDKHook(client, SDKHook_OnTakeDamageAlive, OnTakeDamageAlive);
 }
 
 public Action OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float &damage, int &damagetype) {
 	// Victim = The damaged entity
 	// Inflictor = The attacking entity
 	
-	if(!IsValidClient(inflictor) && !IsValidClient(victim) && GetClientTeam(inflictor) != CS_TEAM_CT && GetClientTeam(victim) != CS_TEAM_T)
-		return Plugin_Continue;
+	if(IsClientInGame(inflictor) && GetClientTeam(inflictor) == CS_TEAM_CT && GetClientTeam(victim) == CS_TEAM_T && IsPlayerAlive(victim) && IsPlayerAlive(inflictor)) {
+		if(GetClientButtons(inflictor) & IN_USE) {
+			GiveClientWarningShot(victim, inflictor);
+			return Plugin_Handled;
+		}
+	}
 	
-	GiveClientWarningShot(victim, inflictor);
-	return Plugin_Handled;
+	return Plugin_Continue;
 }
 
 public Action ColorTimer(Handle timer, int client) {
@@ -84,19 +86,28 @@ public int Native_GiveClientWarningShot(Handle plugin, int numParams) {
 	int victim = GetNativeCell(1);
 	int inflictor = GetNativeCell(2);
 	int damage = (GetClientHealth(victim) - cvDamage.IntValue);
-	
-	if(cvColored.IntValue > 0) {
-		SetEntityRenderColor(victim, cvRed.IntValue, cvGreen.IntValue, cvBlue.IntValue);
-		CreateTimer(cvColored.FloatValue, ColorTimer, victim);
+	if(IsPlayerAlive(victim)) {
+		if(cvColored.IntValue > 0) {
+			SetEntityRenderColor(victim, cvRed.IntValue, cvGreen.IntValue, cvBlue.IntValue);
+			CreateTimer(cvColored.FloatValue, ColorTimer, victim);
+		}
+		
+		if(GetClientHealth(victim) >= cvDamage.IntValue) {
+			SetEntityHealth(victim, damage);
+		} else {
+			ForcePlayerSuicide(victim);
+		}
+		
+		CPrintToChatAll("%s {red}%t", prefix, "Warning Shot", inflictor, victim);
+		PrintHintText(victim, "<font color='#d2e845'>%t</font>", "Warning Shot Hint", inflictor);
+		
+		Call_StartForward(gF_OnWarningShotGiven);
+		Call_PushCell(victim);
+		Call_PushCell(inflictor);
+		Call_Finish();
+		
+		return true;
 	}
-	SetEntityHealth(victim, damage);
-	CPrintToChatAll("%s {red}%t", prefix, "Warning Shot", inflictor, victim);
-	PrintHintText(victim, "<font color='#d2e845'>%t</font>", "Warning Shot Hint", inflictor);
 	
-	Call_StartForward(gF_OnWarningShotGiven);
-	Call_PushCell(victim);
-	Call_PushCell(inflictor);
-	Call_Finish();
-	
-	return true;
+	return false; 
 }
