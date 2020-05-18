@@ -8,7 +8,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define VERSION "1.2"
+#define VERSION "1.2.1"
 
 ConVar cvDamage;
 ConVar cvColored;
@@ -48,6 +48,8 @@ public void OnPluginStart() {
 	cvBlue = CreateConVar("sm_warning_color_B", "0", "The BLUE value of the color the warned T should get.", FCVAR_NOTIFY, true, 0.0, true, 255.0);
 	
 	for(int i = 1; i <= MaxClients; i++) {
+		if(!IsValidClient(i, false, true))
+			continue;
 		if(!IsClientInGame(i))
 			continue;
 		SDKHook(i, SDKHook_OnTakeDamageAlive, OnTakeDamageAlive);
