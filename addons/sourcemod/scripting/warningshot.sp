@@ -66,7 +66,10 @@ public Action OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float
 	// Victim = The damaged entity
 	// Inflictor = The attacking entity
 	
-	if(IsClientInGame(inflictor) && GetClientTeam(inflictor) == CS_TEAM_CT && GetClientTeam(victim) == CS_TEAM_T && IsPlayerAlive(victim) && IsPlayerAlive(inflictor)) {
+	if(!IsValidClient(victim) && !IsValidClient(inflictor))
+		return Plugin_Handled;
+	
+	if(IsClientInGame(inflictor) && GetClientTeam(inflictor) == CS_TEAM_CT && GetClientTeam(victim) == CS_TEAM_T) {
 		if(GetClientButtons(inflictor) & IN_USE) {
 			GiveClientWarningShot(victim, inflictor);
 			return Plugin_Handled;
